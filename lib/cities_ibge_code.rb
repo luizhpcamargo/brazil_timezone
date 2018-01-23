@@ -5,19 +5,15 @@ ActiveSupport::TimeZone.instance_variable_set('@zones', nil)
 ActiveSupport::TimeZone.instance_variable_set('@zones_map', nil)
 
 class CitiesIbgeCode
-  attr_accessor :cities
 
-  def load_cities
-    states =  Dir.glob("../lib/brazil_timezone/config/*")
-    self.cities = {}
+  def self.load_cities
+    states =  Dir.glob(File.join(File.expand_path(File.dirname(__FILE__), "../lib/brazil_timezone/config/*")))
+    cities = {}
     states.each do |file|
       city = YAML.load(File.read(file))
-      self.cities.merge(city){|key, old_value, new_value| old_value.merge(new_value) }
+      cities.merge(city){|key, old_value, new_value| old_value.merge(new_value) }
     end
-  end
-
-  def time_zones
-    load_cities
+    cities
   end
 end
 

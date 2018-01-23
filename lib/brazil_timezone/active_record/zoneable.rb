@@ -21,6 +21,7 @@ module BrazilTimezone
         end
 
         def zone
+          @cities ||= CitiesIbgeCode.load_cities
           Time.zone = 'Fernando de Noronha' if noronha?
           Time.zone = 'Amazônia' if amazonia?
           Time.zone = 'Acre' if acre?
@@ -29,7 +30,7 @@ module BrazilTimezone
 
         ["brasilia", "noronha", "amazonia", "acre" ].each do |time|
           define_method "#{time}?" do
-            cities[time].keys.include? field
+            @cities[time].keys.include? field
           end
         end
       end
