@@ -7,11 +7,11 @@ ActiveSupport::TimeZone.instance_variable_set('@zones_map', nil)
 class CitiesIbgeCode
 
   def self.load_cities
-    states =  Dir.glob(File.join(File.expand_path(File.dirname(__FILE__), "../lib/brazil_timezone/config/*")))
+    states =  Dir.glob(File.join(File.dirname(__FILE__), "config/*"))
     cities = {}
     states.each do |file|
       city = YAML.load(File.read(file))
-      cities.merge(city){|key, old_value, new_value| old_value.merge(new_value) }
+      cities.merge!(city){|key, old_value, new_value| old_value.merge(new_value) }
     end
     cities
   end

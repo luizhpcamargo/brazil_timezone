@@ -12,24 +12,23 @@ module BrazilTimezone
         def zone_in(field, *args)
           options = args.extract_options!
 
-          zone
+          zone field
 
-          define_method now do |*args|
-            zone
+          define_method "now" do |*args|
             Time.zone.now
           end
         end
 
-        def zone
+        def zone(field)
           @cities ||= CitiesIbgeCode.load_cities
-          Time.zone = 'Fernando de Noronha' if noronha?
-          Time.zone = 'Amazônia' if amazonia?
-          Time.zone = 'Acre' if acre?
+          Time.zone = 'Fernando de Noronha' if noronha? field
+          Time.zone = 'Amazônia' if amazonia? field
+          Time.zone = 'Acre' if acre? field
           Time.zone = 'Brasilia'
         end
 
         ["brasilia", "noronha", "amazonia", "acre" ].each do |time|
-          define_method "#{time}?" do
+          define_method "#{time}?" do |field|
             @cities[time].keys.include? field
           end
         end
