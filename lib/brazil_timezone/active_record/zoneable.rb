@@ -8,31 +8,53 @@ module BrazilTimezone
     module Zoneable
       extend ActiveSupport::Concern
 
+      attr_accessor :brazil_city_ibge_code
+
       module ClassMethods
         def zone_in(field, *args)
           options = args.extract_options!
 
-          define_method "now" do
-            zone(public_send(field))
-            Time.zone.now
-          end
+          alias_attribute :brazil_city_ibge_code, field
 
-          define_method "zone" do |ibge|
-            require 'pry'; binding.pry
-            @cities ||= CitiesIbgeCode.load_cities
-            return Time.zone = 'Fernando de Noronha' if noronha? ibge
-            return Time.zone = 'Amazônia' if amazonia? ibge
-            return Time.zone = 'Acre' if acre? ibge
-            Time.zone = 'Brasilia'
-          end
+          set_callback :initialize, :after, :change_time_zone unless options[:auto_load] == false
 
-          ["brasilia", "noronha", "amazonia", "acre" ].each do |time|
-            define_method "#{time}?" do |ibge|
-              @cities[time].keys.include? ibge
-            end
-          end
         end
       end
+
+      def event_time_formatted
+        change_time_zone
+        Time.zone.now.iso8601
+      end
+
+      def change_time_zone
+        @cities ||= CitiesIbgeCode.load_cities
+        Time.zone = zone_name.is_a?(String) ? "America/#{zone_name}" : 'Brasilia'
+      end
+
+      def find_zone_name
+        return 'Sao_Paulo' if brazil_city_ibge_code.blank?
+        %w(Noronha
+        Belem
+        Fortaleza
+        Recife
+        Araguaina
+        Maceio
+        Bahia
+        Sao_Paulo
+        Campo_Grande
+        Cuiaba
+        Porto_Velho
+        Boa_Vista
+        Manaus
+        Rio_Branco).each do |zone|
+          return zone if @cities[zone].keys.include? brazil_city_ibge_code
+        end
+      end
+
+      def zone_name
+        @zone_name ||= find_zone_name
+      end
+
     end
   end
 end

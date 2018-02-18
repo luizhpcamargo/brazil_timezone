@@ -33,4 +33,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "railties"
   spec.add_development_dependency "rspec-rails"
+  spec.add_dependency "tzinfo-data"
 end
